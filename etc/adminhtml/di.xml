@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- http://devdocs.magento.com/guides/v2.2/howdoi/customize_product.html#pool -->
+    <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool" type="Magento\Ui\DataProvider\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="matrix" xsi:type="array">
+                    <item name="class" xsi:type="string">Smile\Matrix\Ui\DataProvider\Product\Form\Modifier</item>
+                    <item name="sortOrder" xsi:type="number">90</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+</config>
