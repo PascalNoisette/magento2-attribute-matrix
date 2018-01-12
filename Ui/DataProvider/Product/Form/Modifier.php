@@ -13,7 +13,7 @@ use Magento\Framework\Stdlib\ArrayManager;
  */
 class Modifier extends AbstractModifier
 {
-    const TARGET_ATTRIBUTE_CODE = "meta_description";
+    const TARGET_ATTRIBUTE_CODE = "gender2";
 
     /**
      * @var ArrayManager
