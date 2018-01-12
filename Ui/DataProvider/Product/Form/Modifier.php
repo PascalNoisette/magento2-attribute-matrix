@@ -39,7 +39,7 @@ class Modifier extends AbstractModifier
     public function modifyMeta(array $meta)
     {
         $this->meta = $meta;
-        $this->customizeField();
+        $this->customizeField(self::TARGET_ATTRIBUTE_CODE);
         return $this->meta;
     }
 
@@ -55,10 +55,10 @@ class Modifier extends AbstractModifier
      *
      * @return $this
      */
-    private function customizeField()
+    private function customizeField($attributeCode)
     {
         $tierPricePath = $this->arrayManager->findPath(
-            self::TARGET_ATTRIBUTE_CODE,
+            $attributeCode,
             $this->meta,
             null,
             'children'
@@ -72,7 +72,7 @@ class Modifier extends AbstractModifier
             );
             $this->meta = $this->arrayManager->set(
                 $this->arrayManager->slicePath($tierPricePath, 0, -3)
-                . '/' . self::TARGET_ATTRIBUTE_CODE,
+                . '/' . $attributeCode,
                 $this->meta,
                 $this->arrayManager->get($tierPricePath, $this->meta)
             );
@@ -80,11 +80,8 @@ class Modifier extends AbstractModifier
                 $this->arrayManager->slicePath($tierPricePath, 0, -2),
                 $this->meta
             );
-        } else {
-            throw new \Exception(self::TARGET_ATTRIBUTE_CODE . " not found in meta");
         }
         
-
         return $this;
     }
 
