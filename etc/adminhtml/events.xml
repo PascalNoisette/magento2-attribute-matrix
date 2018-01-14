@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="adminhtml_product_attribute_types">
+        <observer name="matrix_attribute_type" instance="Smile\Matrix\Observer\AddMatrixAttributeType" />
+    </event>
+    <event name="eav_entity_attribute_save_before">
+        <observer name="matrix_backend" instance="Smile\Matrix\Observer\SaveMatrixBackend" />
+    </event>
+</config>

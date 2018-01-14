@@ -7,14 +7,14 @@ use Magento\Ui\Component\Form\Element\DataType\Text;
 use Magento\Ui\Component\Form\Element\Input;
 use Magento\Ui\Component\Form\Field;
 use Magento\Framework\Stdlib\ArrayManager;
+use Magento\Catalog\Api\ProductAttributeRepositoryInterface as AttributeRepository;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 
 /**
  * Class Matrix
  */
 class Modifier extends AbstractModifier
 {
-    const TARGET_ATTRIBUTE_CODE = "meta_description";
-
     /**
      * @var ArrayManager
      */
@@ -24,22 +24,47 @@ class Modifier extends AbstractModifier
      * @var array
      */
     protected $meta = [];
+    
+    /**
+     * Fetch attribute
+     *
+     * @var ProductAttributeRepositoryInterface $productAttributeRepository
+     */
+    protected $productAttributeRepository;
+    
+    /**
+     * Search all attribute dynamic
+     */
+    protected $criteriaBuilder;
 
     /**
      * @param ArrayManager $arrayManager
+     * @param \Magento\Catalog\Api\ProductAttributeRepositoryInterface $repository
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $criteriaBuilder
      */
     public function __construct(
-        ArrayManager $arrayManager
+        ArrayManager $arrayManager,
+        AttributeRepository $repository,
+        SearchCriteriaBuilder $criteriaBuilder
     ) {
+        $this->productAttributeRepository = $repository;
         $this->arrayManager = $arrayManager;
+        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     /**
      */
     public function modifyMeta(array $meta)
     {
+        $criteria = $this
+            ->criteriaBuilder
+            ->addFilter('frontend_input', 'dynamicRows', 'eq')
+            ->create();
+        $items = $this->productAttributeRepository->getList($criteria);
         $this->meta = $meta;
-        $this->customizeField(self::TARGET_ATTRIBUTE_CODE);
+        foreach ($items->getItems() as $attribute) {
+            $this->customizeField($attribute);
+        }
         return $this->meta;
     }
 
@@ -55,8 +80,9 @@ class Modifier extends AbstractModifier
      *
      * @return $this
      */
-    private function customizeField($attributeCode)
+    private function customizeField($attribute)
     {
+        $attributeCode = $attribute->getAttributeCode();
         $tierPricePath = $this->arrayManager->findPath(
             $attributeCode,
             $this->meta,
@@ -68,7 +94,7 @@ class Modifier extends AbstractModifier
             $this->meta = $this->arrayManager->merge(
                 $tierPricePath,
                 $this->meta,
-                $this->getTierPriceStructure($tierPricePath)
+                $this->getTierPriceStructure($attribute, $tierPricePath)
             );
             $this->meta = $this->arrayManager->set(
                 $this->arrayManager->slicePath($tierPricePath, 0, -3)
@@ -91,7 +117,7 @@ class Modifier extends AbstractModifier
      * @param string $tierPricePath
      * @return array
      */
-    private function getTierPriceStructure($tierPricePath)
+    private function getTierPriceStructure($attribute, $tierPricePath)
     {
         return [
             'arguments' => [
@@ -99,7 +125,7 @@ class Modifier extends AbstractModifier
                     'config' => [
                         'componentType' => 'dynamicRows',
                         'component' => 'Magento_Ui/js/dynamic-rows/dynamic-rows',
-                        'label' => __('Matrix'),
+                        'label' => $attribute->getFrontendLabel(),
                         'renderDefaultRecord' => false,
                         'recordTemplate' => 'record',
                         'dataScope' => '',
